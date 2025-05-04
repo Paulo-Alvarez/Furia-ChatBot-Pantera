@@ -8,13 +8,15 @@ const PORT = 3000;
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 
+// Função que verifica se alguma palavra-chave está presente na mensagem do usuário
 function contarSinonimos(listaSinonimos, mensagem) {
   return listaSinonimos.some(palavra => mensagem.includes(palavra));
 }
-
+// Endpoint principal que recebe mensagens do usuário via POST (e as converte em minúsculas)
 app.post("/chat", (req, res) => {
     const userMessage = req.body.message.toLowerCase();
-  
+
+// Respostas possíveis categorizadas por tipo, possibilidade de aumentar a lista com facilidade  
     const noticias = [
       "📰 <b>Notícia:</b> <b>FURIA venceu</b> o último confronto contra a LEGACY!",
       "📰 <b>Notícia:</b> <b>FURIA</b> anuncia <b>novo coach</b> para temporada 2025!",
@@ -55,6 +57,7 @@ app.post("/chat", (req, res) => {
       "🔥 <b>Rodada 14:</b> <b>FURIA</b> pressiona no ataque! <b>KSCERATO elimina três jogadores</b> da G2 com um spray impecável. A torcida vibra com a virada!"
     ];
 
+// Palavras-chave associadas a cada categoria, fácil manutenção    
     const dicasChaves = ["dica", "conselho", "macete"];
     const noticiasChaves = ["notícia", "noticia", "novidade"];
     const curiosidadesChaves = ["curiosidade","fato"];
@@ -63,6 +66,8 @@ app.post("/chat", (req, res) => {
     const liveChaves = ["ao vivo", "aovivo", "live", "tempo real", "temporeal"];
     const liveJogador = ["jogador", "player", "atleta"];
 
+// Verifica quais categorias a mensagem do usuário acionou
+// Mesmo que o usuário mencione várias palavras da mesma categoria, será retornada apenas uma resposta daquela categoria
     let quantidadeDicas = contarSinonimos(dicasChaves, userMessage) ? 1 : 0;
     let quantidadeNoticias = contarSinonimos(noticiasChaves, userMessage) ? 1 : 0;
     let quantidadeCuriosidades = contarSinonimos(curiosidadesChaves, userMessage) ? 1 : 0;
@@ -71,8 +76,10 @@ app.post("/chat", (req, res) => {
     let quantidadeLive = contarSinonimos(liveChaves, userMessage) ? 1 : 0;
     let quantidadeJogador = contarSinonimos(liveJogador, userMessage) ? 1 : 0;
 
+// Armazena todas as respostas selecionadas aleatoriamente
     let respostas = [];
 
+// Para cada categoria identificada, sorteia aleatoriamente uma resposta e adiciona ao array final de respostas
     for (let i = 0; i < quantidadeDicas; i++) {
       respostas.push(dicas[Math.floor(Math.random() * dicas.length)]);
     }
@@ -101,6 +108,7 @@ app.post("/chat", (req, res) => {
       respostas.push(jogador[Math.floor(Math.random() * jogador.length)]);
     }
 
+// Se nenhuma palavra-chave foi identificada, envia resposta padrão com instruções
     let resposta;
     if (respostas.length === 0) {
       resposta = "Não peguei esse comando... 😅 Mas se estiver procurando algo, manda ver! Posso te contar <b>curiosidades</b>, <b>notícias</b>, <b>dicas de CS</b>, <b>resultados</b> ou até te contar sobre a <b>próxima partida da FURIA</b> ou sobre os nossos <b>jogadores</b>! 🕹️ Fala aí o que você quer saber!";
